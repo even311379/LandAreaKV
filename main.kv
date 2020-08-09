@@ -1,0 +1,36 @@
+#:import MapSource kivy.garden.mapview.MapView
+
+<AppContent>:
+    map: mapview
+    edit_btn: edit_btn
+    # md_bg_color: app.theme_cls.primary_color
+    # adaptive_height: True
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        MDToolbar:
+            title: 'Area Calculation'
+            right_action_items: [["dots-vertical", lambda x: root.tick()]]             
+
+        FloatLayout:
+            AreaCalcMap:
+                id: mapview
+
+                lat: 24.680
+                lon: 121.7193
+                zoom: 14
+
+            MDFloatingActionButton:
+                id: edit_btn
+                icon: "android"
+                md_bg_color: app.theme_cls.primary_color
+                pos_hint: {'right':0.98, 'y':0.02}
+                on_press: root.toggle_editmode()
+
+
+
+
+
+
+                
