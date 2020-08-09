@@ -1,34 +1,107 @@
-#:import MapSource kivy.garden.mapview.MapView
 
 <AppContent>:
     map: mapview
     edit_btn: edit_btn
-    # md_bg_color: app.theme_cls.primary_color
-    # adaptive_height: True
+
+    canvas.after:
+
+        Color:
+            rgba: 0.9,0.1,0.05,1
+
+        Line:                     
+            points: 0, 0, 100, 100
+            width: 3  
 
     BoxLayout:
         orientation: 'vertical'
 
-        MDToolbar:
-            title: 'Area Calculation'
-            right_action_items: [["dots-vertical", lambda x: root.tick()]]             
+        size: (540, Window.size[1]-64) 
+        size_hint: (None, None)
 
         FloatLayout:
-            AreaCalcMap:
-                id: mapview
 
+            MapView:
+                id: mapview
                 lat: 24.680
                 lon: 121.7193
                 zoom: 14
 
+                Label:
+                    text: "test"                                
+
             MDFloatingActionButton:
                 id: edit_btn
-                icon: "android"
+                icon: "pen-plus"
                 md_bg_color: app.theme_cls.primary_color
                 pos_hint: {'right':0.98, 'y':0.02}
                 on_press: root.toggle_editmode()
 
 
+
+<ContentNavigationDrawer>:
+
+    ScrollView:
+
+        MDList:
+
+            OneLineListItem:
+                text: "Screen 1"
+                on_press:
+                    root.nav_drawer.set_state("close")
+                    root.screen_manager.current = "map screen"
+
+            OneLineListItem:
+                text: "Screen 2"
+                on_press:
+                    root.nav_drawer.set_state("close")
+                    root.screen_manager.current = "author screen"
+
+<AppScreen>:
+    content: content
+
+    MDToolbar:
+        id: toolbar
+        pos_hint: {"top": 1}
+        title: 'Area Calculation'        
+        left_action_items: [["menu", lambda x: nav_drawer.set_state("open")]]             
+
+
+    NavigationLayout:
+        x: toolbar.height
+
+
+        ScreenManager:
+            id: screen_manager
+
+            Screen:
+
+                name: "map screen"
+
+                AppContent:
+                    id: content
+                    x: toolbar.height
+                    
+
+            Screen:
+
+                name: "author screen"
+
+                # MDLabel:
+                #     text: "Thank you for using this app!"                
+                #     halign: "center"
+
+                MDLabel:
+                    text: f"toolbar_height: {toolbar.height}"                
+                    halign: "center"
+
+        MDNavigationDrawer:
+            id: nav_drawer
+
+            ContentNavigationDrawer:
+                screen_manager: screen_manager
+                nav_drawer: nav_drawer
+
+    
 
 
 
