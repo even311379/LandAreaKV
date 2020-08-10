@@ -3,16 +3,17 @@ from kivymd.uix.floatlayout import MDFloatLayout
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFloatingActionButton
 from kivymd.uix.label import MDLabel
-from kivy_garden.mapview import MapView, MapSource, MapMarker
-from kivy.properties import ObjectProperty
+from kivy_garden.mapview import MapView, MapSource, MapMarker, geojson, MapLayer
+from kivy.properties import ObjectProperty, NumericProperty
 from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 from kivy.graphics import Line, Color
+from kivy.lang import Builder
 
 
 
-Window.size = (540, 960)
+Builder.load_file('main.kv')
 
 class ContentNavigationDrawer(MDBoxLayout):
     screen_manager = ObjectProperty()
@@ -24,6 +25,8 @@ class AppContent(MDFloatLayout):
     
     map = ObjectProperty()
     edit_btn = ObjectProperty()
+    polygon_layer = ObjectProperty()
+
     editmode = False
     marker_points = []
     marker_latlon = []
@@ -40,8 +43,10 @@ class AppContent(MDFloatLayout):
 
     def on_touch_down(self, touch):
         if self.editmode:
-            print(touch.x, touch.y)
-            print(self.map.get_bbox())
+            print('test geojson:')            
+            geoj_layer = geojson.GeoJsonMapLayer(source='sample_geoj.json')
+            self.map.add_widget(geoj_layer)
+            self.map.center_on(self.map.lat+0.0001, self.map.lon+0.0001)
             # if touch(x, y is located inside finish edit btn)
             if touch.x > self.edit_btn.x and touch.x < self.edit_btn.right and touch.y > self.edit_btn.y and touch.y < self.edit_btn.top:
                 self.edit_btn.on_touch_down(touch)
@@ -88,6 +93,9 @@ class AppContent(MDFloatLayout):
 
     def test(self):
         print('test')
+
+    # def change_polygon(self):
+    #     self.polygon_layer.source = 'geoj2.json'
     #btn functions:
     # def btn_toggle_editmode(self):
         #print(instance)
@@ -102,15 +110,14 @@ class AppScreen(Screen):
 
 class MainApp(MDApp):    
 
+    device_width = NumericProperty()
+    devide_height = NumericProperty()
+
     def on_start(self):
         self.theme_cls.primary_palette = 'BlueGray'
   
     def build(self):
-        # content = AppContent()
-        # source = MapSource(url="http://mt0.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}", maxZoom=20)
-        # content.map.map_source = source
-        # Clock.schedule_interval(content.map.tick,1/30)
-        # return  content
+        self.device_width, self.device_height = Window.size
         app = AppScreen()
         source = MapSource(url="http://mt0.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}", maxZoom=20)
         app.content.map.map_source = source        

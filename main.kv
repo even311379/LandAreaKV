@@ -2,21 +2,12 @@
 <AppContent>:
     map: mapview
     edit_btn: edit_btn
-
-    canvas.after:
-
-        Color:
-            rgba: 0.9,0.1,0.05,1
-
-        Line:                     
-            points: 0, 0, 100, 100
-            width: 3  
+    # polygon_layer: jlayer    
 
     BoxLayout:
         orientation: 'vertical'
 
-        size: (540, Window.size[1]-64) 
-        size_hint: (None, None)
+        size_hint: (1, 1-128/app.device_height)
 
         FloatLayout:
 
@@ -26,8 +17,10 @@
                 lon: 121.7193
                 zoom: 14
 
-                Label:
-                    text: "test"                                
+                # GeoJsonMapLayer:
+                #     id: jlayer
+                #     source: 'sample_geoj.json'
+                                                
 
             MDFloatingActionButton:
                 id: edit_btn
@@ -35,6 +28,13 @@
                 md_bg_color: app.theme_cls.primary_color
                 pos_hint: {'right':0.98, 'y':0.02}
                 on_press: root.toggle_editmode()
+
+            # MDFloatingActionButton:                
+            #     icon: "pen-plus"
+            #     md_bg_color: app.theme_cls.primary_color
+            #     pos_hint: {'right':0.3, 'y':0.02}
+            #     on_press: root.change_position()
+                # on_press: root.change_polygon()
 
 
 
