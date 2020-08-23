@@ -2,11 +2,10 @@
 <AppContent>:
     map: mapview
     edit_btn: edit_btn
-    # polygon_layer: jlayer    
+    area_info: area_info
 
     BoxLayout:
         orientation: 'vertical'
-
         size_hint: (1, 1-128/app.device_height)
 
         FloatLayout:
@@ -16,10 +15,6 @@
                 lat: 24.680
                 lon: 121.7193
                 zoom: 14
-
-                # GeoJsonMapLayer:
-                #     id: jlayer
-                #     source: 'sample_geoj.json'
                                                 
 
             MDFloatingActionButton:
@@ -29,6 +24,23 @@
                 pos_hint: {'right':0.98, 'y':0.02}
                 on_press: root.toggle_editmode()
 
+
+            MDLabel:
+                id: area_info
+                text: ""
+                font_style: "H6"
+                color: 0.54,0.78,0.12, 1
+                # pos_hint: {'left':0.98, 'y':0.02}
+                pos_hint: {'center_y': 0.05, 'x': 0.05}
+                font_name: "NotoSansCJKtc-DemiLight.otf"
+               
+
+
+            # Button:
+            #     pos_hint: {'center_y': 0.7, 'center_x': 0.5}
+            #     size_hint: (0.1, 0.1)
+            #     text: "太漂亮了"
+            #     font_name: "NotoSansCJKtc-DemiLight.otf"
             # MDFloatingActionButton:                
             #     icon: "pen-plus"
             #     md_bg_color: app.theme_cls.primary_color
@@ -62,7 +74,9 @@
     MDToolbar:
         id: toolbar
         pos_hint: {"top": 1}
-        title: 'Area Calculation'        
+        title: 'Area Calculation'
+        # font_name: "NotoSansCJKtc-DemiLight.otf"        
+        #  Can not use chinese fonts here....
         left_action_items: [["menu", lambda x: nav_drawer.set_state("open")]]             
 
 

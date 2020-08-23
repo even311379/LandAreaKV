@@ -11,9 +11,26 @@ from kivy.core.window import Window
 from kivy.graphics import Line, Color
 from kivy.lang import Builder
 
+import Utils
 
+import json
+import shapely.geometry as sg
+import area
 
-Builder.load_file('main.kv')
+# import kivy.resources
+# from kivy.core.text import LabelBase
+# kivy.resources.resource_add_path('.')
+ 
+
+# kivy.resources.resource_add_path(".")
+# font1 = kivy.resources.resource_find("NotoSansCJKtc-DemiLight.otf")
+# #
+# # #通过labelBase
+# LabelBase.register("NS_labelBase","NotoSansCJKtc-DemiLight.otf")
+# kivy.core.text.Label.register("NS_label","NotoSansCJKtc-DemiLight.otf")
+
+Builder.load_file('Layout.kv')
+
 
 class ContentNavigationDrawer(MDBoxLayout):
     screen_manager = ObjectProperty()
@@ -25,11 +42,11 @@ class AppContent(MDFloatLayout):
     
     map = ObjectProperty()
     edit_btn = ObjectProperty()
-    polygon_layer = ObjectProperty()
+    area_info = ObjectProperty()
 
     editmode = False
-    marker_points = []
-    marker_latlon = []
+    marker_point = []
+    marker_lonlat = []
 
     def toggle_editmode(self):
         if self.editmode:
@@ -43,13 +60,12 @@ class AppContent(MDFloatLayout):
 
     def on_touch_down(self, touch):
         if self.editmode:
-            print('test geojson:')            
-            geoj_layer = geojson.GeoJsonMapLayer(source='sample_geoj.json')
-            self.map.add_widget(geoj_layer)
-            self.map.center_on(self.map.lat+0.0001, self.map.lon+0.0001)
+
             # if touch(x, y is located inside finish edit btn)
             if touch.x > self.edit_btn.x and touch.x < self.edit_btn.right and touch.y > self.edit_btn.y and touch.y < self.edit_btn.top:
                 self.edit_btn.on_touch_down(touch)
+
+            
                                                    
         else:
             super().on_touch_down(touch)
@@ -58,29 +74,48 @@ class AppContent(MDFloatLayout):
         if self.editmode:
             print(touch.x, touch.y)
             print(self.map.get_bbox())
-            if self.marker_points:
+            if self.marker_point:
                 self.canvas.after.clear()
                 with self.canvas.after:
-                    Color(0.9,0.1,0.05,1)
-                    Line(points=self.marker_points+[touch.x, touch.y],width=3)
-
-            # self.ll.points = [0,0, touch.x, touch.y]                        
+                    Color(1, 0.76, 0.98,1)
+                    Line(points=self.marker_point+[touch.x, touch.y],width=3)
+                      
         else:
             super().on_touch_move(touch)
 
     def on_touch_up(self, touch):
         if self.editmode:
+            # print(self.map.ids)
             if not self.IsInsideBtns(touch.x, touch.y):
                 m_lat, m_lon = self.map.get_latlon_at(touch.x, touch.y)
-                self.marker_points += touch.x, touch.y
-                self.marker_latlon.append((m_lat, m_lon))
+                self.marker_point = [touch.x, touch.y]     
+                self.canvas.after.clear()           
+                self.marker_lonlat.append([m_lon, m_lat])
                 marker = MapMarker()
                 marker.lat = m_lat
                 marker.lon = m_lon
                 marker.source = 'marker.png'
                 # marker.bind(on_press=self.test)
+                marker.id = str(m_lat)
                 self.map.add_marker(marker)
-                print('is label added???')
+                # print(len(self.marker_lonlat))
+                # print(self.marker_lonlat)
+            for child in self.map.children:
+                if type(child) == geojson.GeoJsonMapLayer:
+                    self.map.remove_widget(child)
+                
+            if (len(self.marker_lonlat) > 2):
+                geoj_layer = geojson.GeoJsonMapLayer(geojson=json.loads(Utils.create_GeoJson(self.marker_lonlat)))
+                self.map.add_widget(geoj_layer)
+                self.map.center_on(self.map.lat+0.0001, self.map.lon+0.0001)
+                obj = {'type': 'Polygon', 'coordinates': [self.marker_lonlat]}
+                polygon_area = round(area.area(obj),2)
+                self.area_info.text = f'目前面積： {polygon_area} 平方公尺'
+                # if 'geoj_layer' in self.map.ids:
+                #     print(123)
+                #     self.map.remove_widget(self.ids.jlayer)
+                # else:
+                #     print(456)
         else:
             super().on_touch_up(touch)
     
@@ -94,12 +129,6 @@ class AppContent(MDFloatLayout):
     def test(self):
         print('test')
 
-    # def change_polygon(self):
-    #     self.polygon_layer.source = 'geoj2.json'
-    #btn functions:
-    # def btn_toggle_editmode(self):
-        #print(instance)
-        # self.toggle_editmode()
 
 class AppScreen(Screen):
 
